@@ -22,11 +22,15 @@ type FQFilter struct {
 func (f *FQFilter) Serve(resp http.ResponseWriter, req *http.Request) {
 
 	matchedQueue := f.Matcher(req, f.queues)
+	fmt.Printf("matchedQueue: %d\n", matchedQueue.Index)
 
 	dispatcher := f.sharedDispatcher.producers[matchedQueue.Priority]
 	func() {
 		dispatcher.lock.Lock()
 		defer dispatcher.lock.Unlock()
+		// dispatcher.queues[0].Priority
+
+		fmt.Printf("dispatcher.requestsexecuting: %d\n", dispatcher.requestsexecuting)
 		if dispatcher.requestsexecuting > dispatcher.ACV {
 			// too many requests
 			fmt.Println("throttled...")
@@ -46,6 +50,7 @@ func (f *FQFilter) Serve(resp http.ResponseWriter, req *http.Request) {
 		func() {
 			dispatcher.lock.Lock()
 			defer dispatcher.lock.Unlock()
+			// TODO(aaron-prindle) incorrect, always 0
 			dispatcher.requestsexecuting++
 		}()
 		defer finishFunc()

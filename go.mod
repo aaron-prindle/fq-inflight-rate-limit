@@ -1,4 +1,4 @@
-module github.com/yue9944882/inflight-rate-limit
+module github.com/aaron-prindle/fq-inflight-rate-limit
 
 go 1.12
 

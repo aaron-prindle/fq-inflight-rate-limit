@@ -28,10 +28,14 @@ type FQScheduler struct {
 }
 
 func (q *FQScheduler) chooseQueue(packet *Packet) *Queue {
-	if packet.queueidx < 0 || packet.queueidx > len(q.queues) {
-		panic("no matching queue for packet")
-	}
-	return q.queues[packet.queueidx]
+	// if packet.queueidx < 0 || packet.queueidx > len(q.queues) {
+	// 	panic("no matching queue for packet")
+	// }
+	fmt.Printf("packet.queueidx: %d\n", packet.queueidx)
+	fmt.Printf("len(q.queues): %d\n", len(q.queues))
+	// TODO(aaron-prindle) MAJOR HACK, fix
+	return q.queues[0]
+	// return q.queues[packet.queueidx]
 }
 
 func NewFQScheduler(queues []*Queue, clock clock.Clock) *FQScheduler {
@@ -119,10 +123,12 @@ func (q *FQScheduler) FinishPacket(p *Packet) {
 
 	// When a request finishes being served, and the actual service time was S,
 	// the queue’s virtual start time is decremented by G - S.
-	q.queues[p.queueidx].virstart -= G - float64(S)
+	q.queues[0].virstart -= G - float64(S)
+	// q.queues[p.queueidx].virstart -= G - float64(S)
 
 	// request has finished, remove from requests executing
-	q.queues[p.queueidx].RequestsExecuting--
+	q.queues[0].RequestsExecuting--
+	// q.queues[p.queueidx].RequestsExecuting--
 }
 
 // Dequeue dequeues a packet from the fair queuing scheduler

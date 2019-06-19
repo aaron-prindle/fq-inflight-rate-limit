@@ -4,7 +4,8 @@ import "time"
 
 type PriorityBand int
 
-const SCL = 400 // SCL is the apiserver's concurrency limit
+// const SCL = 400 // SCL is the apiserver's concurrency limit
+const SCL = 6 // SCL is the apiserver's concurrency limit
 
 const (
 	SystemTopPriorityBand = PriorityBand(iota)

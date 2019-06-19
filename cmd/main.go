@@ -6,7 +6,7 @@ import (
 
 	"fmt"
 
-	"github.com/yue9944882/inflight-rate-limit"
+	inflight "github.com/aaron-prindle/fq-inflight-rate-limit"
 )
 
 func main() {
