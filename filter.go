@@ -6,18 +6,16 @@ import (
 	"strconv"
 	"sync"
 	"time"
-
-	fq "github.com/aaron-prindle/fq-apiserver"
 )
 
 type FQFilter struct {
 	// list-watching API models
 	lock   *sync.Mutex
-	queues []*fq.Queue
+	queues []*Queue
 
 	*sharedDispatcher
 
-	Matcher  func(*http.Request, []*fq.Queue) *fq.Queue
+	Matcher  func(*http.Request, []*Queue) *Queue
 	Delegate http.HandlerFunc
 }
 
@@ -65,7 +63,7 @@ func (f *FQFilter) Serve(resp http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func NewFQFilter(queues []*fq.Queue) *FQFilter {
+func NewFQFilter(queues []*Queue) *FQFilter {
 	// Initializing everything
 	inflightFilter := &FQFilter{
 		queues:           queues,
@@ -84,7 +82,7 @@ func (f *FQFilter) Run() {
 	go f.sharedDispatcher.Run()
 }
 
-func findMatchedQueue(req *http.Request, queues []*fq.Queue) *fq.Queue {
+func findMatchedQueue(req *http.Request, queues []*Queue) *Queue {
 	priority := req.Header.Get("PRIORITY")
 	idx, err := strconv.Atoi(priority)
 	if err != nil {

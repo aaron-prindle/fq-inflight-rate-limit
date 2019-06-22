@@ -11,12 +11,12 @@ type sharedDispatcher struct {
 	producers map[PriorityBand]*Dispatcher
 }
 
-func queuesForPriority(priority PriorityBand, queues []*fq.Queue) []*fq.Queue {
+func queuesForPriority(priority PriorityBand, queues []*Queue) []*Queue {
 	// TODO(aaron-prindle) change this to actual impl
-	return []*fq.Queue{queues[priority]}
+	return []*Queue{queues[priority]}
 }
 
-func newSharedDispatcher(queues []*fq.Queue) *sharedDispatcher {
+func newSharedDispatcher(queues []*Queue) *sharedDispatcher {
 
 	mgr := &sharedDispatcher{
 		producers: make(map[PriorityBand]*Dispatcher),
@@ -24,11 +24,17 @@ func newSharedDispatcher(queues []*fq.Queue) *sharedDispatcher {
 
 	clock := clock.RealClock{}
 	for _, priority := range Priorities {
+
+		queuesforpriority := queuesForPriority(priority, queues)
+		fqqueues := make([]fq.FQQueue, len(queuesforpriority), len(queuesforpriority))
+		for i := range queuesforpriority {
+			fqqueues[i] = queuesforpriority[i]
+		}
 		mgr.producers[priority] = &Dispatcher{
 			queues: queues,
 			ACV:    1,
 			// ACV:         ACV(priority, queues),
-			fqScheduler: NewFQScheduler(queuesForPriority(priority, queues), clock),
+			fqScheduler: NewFQScheduler(fqqueues, clock),
 		}
 	}
 	// TODO(aaron-prindle) FIX - this eventually needs to be dynamic...

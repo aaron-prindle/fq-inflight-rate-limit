@@ -17,7 +17,7 @@ type FQScheduler struct {
 	queuedistchs map[int][]interface{}
 }
 
-func NewFQScheduler(queues []*fq.Queue, clock clock.Clock) *FQScheduler {
+func NewFQScheduler(queues []fq.FQQueue, clock clock.Clock) *FQScheduler {
 	fq := &FQScheduler{
 		fq:           fq.NewFQScheduler(queues, clock),
 		queuedistchs: make(map[int][]interface{}),
@@ -25,7 +25,7 @@ func NewFQScheduler(queues []*fq.Queue, clock clock.Clock) *FQScheduler {
 	return fq
 }
 
-func (q *FQScheduler) Enqueue(queue *fq.Queue) <-chan func() {
+func (q *FQScheduler) Enqueue(queue fq.FQQueue) <-chan func() {
 	distributionCh := make(chan func(), 1)
 	pkt := &fq.Packet{
 		// TODO(aaron-prindle) HACK, fix
@@ -42,18 +42,18 @@ func (q *FQScheduler) Enqueue(queue *fq.Queue) <-chan func() {
 // FinishPacket is a callback that should be used when a previously dequeud packet
 // has completed it's service.  This callback updates imporatnt state in the
 //  FQScheduler
-func (q *FQScheduler) FinishPacket(p *fq.Packet) {
+func (q *FQScheduler) FinishPacket(p fq.FQPacket) {
 	q.fq.FinishPacket(p)
 }
 
 // Dequeue dequeues a packet from the fair queuing scheduler
-func (q *FQScheduler) Dequeue() (chan func(), *fq.Packet) {
+func (q *FQScheduler) Dequeue() (chan func(), fq.FQPacket) {
 	pkt, ok := q.fq.Dequeue()
 	if !ok {
 		return nil, nil
 	}
 	// dequeue
-	id := pkt.QueueIdx
+	id := pkt.GetQueueIdx()
 	fmt.Printf("pkt: %v\n", pkt)
 	fmt.Printf("len(q.queuedistchs): %d\n", len(q.queuedistchs))
 	distributionCh := q.queuedistchs[id][0].(chan func())

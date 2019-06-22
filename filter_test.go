@@ -15,16 +15,22 @@ import (
 
 // InitQueuesPriority is a convenience method for initializing an array of n queues
 // for the full list of priorities
-func InitQueuesPriority() []*fq.Queue {
-	// queues := make([]*fq.Queue, 0, len(Priorities))
-	queues := []*fq.Queue{}
+func InitQueuesPriority() []*Queue {
+	// queues := make([]*Queue, 0, len(Priorities))
+	queues := []*Queue{}
 	for i, priority := range Priorities {
-		queues = append(queues, &fq.Queue{
-			Packets:     []*fq.Packet{},
+		queues = append(queues, &Queue{
 			Priority:    priority,
 			SharedQuota: 10,
 			Index:       i,
 		})
+		packets := []*fq.Packet{}
+		fqpackets := make([]fq.FQPacket, len(packets), len(packets))
+		for i := range packets {
+			fqpackets[i] = fqpackets[i]
+		}
+
+		queues[i].Packets = fqpackets
 	}
 	return queues
 }

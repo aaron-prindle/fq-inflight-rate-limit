@@ -3,13 +3,11 @@ package inflight
 import (
 	"fmt"
 	"sync"
-
-	fq "github.com/aaron-prindle/fq-apiserver"
 )
 
 type Dispatcher struct {
 	lock              sync.Mutex
-	queues            []*fq.Queue
+	queues            []*Queue
 	requestsexecuting int
 	fqScheduler       *FQScheduler
 	ACV               int
@@ -17,8 +15,8 @@ type Dispatcher struct {
 
 func (d *Dispatcher) GetRequestsExecuting() int {
 	total := 0
-	for _, queue := range d.fqScheduler.Queues {
-		total += queue.RequestsExecuting
+	for _, queue := range d.fqScheduler.fq.Queues {
+		total += queue.GetRequestsExecuting()
 	}
 	return total
 }
