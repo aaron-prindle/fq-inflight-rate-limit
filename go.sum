@@ -1,6 +1,8 @@
 github.com/aaron-prindle/fq-apiserver v0.0.0-20190520214454-5696755b0316 h1:3K3zwi9bdqXDVbCm47reFsZbaLydup2cT+uwrgfgEGs=
 github.com/aaron-prindle/fq-apiserver v0.0.0-20190622072211-5854b22e59d6 h1:K1MTdfsKXJqrqFNLNO7R71n0N8EpRSaHcRnl6PWSCbE=
 github.com/aaron-prindle/fq-apiserver v0.0.0-20190622072211-5854b22e59d6/go.mod h1:10AjmMfQfpN8tBn+HFm1lAzmzowUizPZX3cABnieqr0=
+github.com/aaron-prindle/fq-apiserver v0.0.0-20190622073433-8d72ec045399 h1:8j340uMS62y/n4mRGEqtiBMdssiSPiuhm0L2CNozHi4=
+github.com/aaron-prindle/fq-apiserver v0.0.0-20190622073433-8d72ec045399/go.mod h1:10AjmMfQfpN8tBn+HFm1lAzmzowUizPZX3cABnieqr0=
 github.com/aaron-prindle/fq-apiserver v0.0.0-20190622075157-7d5a4d2b12dd h1:pBmw5Q/OCZ6Nu1Kl8L+t8y3JDmbdK/4aD3mmkF3abxQ=
 github.com/aaron-prindle/fq-apiserver v0.0.0-20190622075157-7d5a4d2b12dd/go.mod h1:10AjmMfQfpN8tBn+HFm1lAzmzowUizPZX3cABnieqr0=
 github.com/aaron-prindle/fq-apiserver v0.0.0-20190622080617-ab9f4da749ea h1:29EcxujdjyFY8oV3Zhich/ODb3Bmr2MefkDXbh5IR0E=

@@ -16,9 +16,9 @@ import (
 // InitQueuesPriority is a convenience method for initializing an array of n queues
 // for the full list of priorities
 func InitQueuesPriority() []*fq.Queue {
-	// queues := make([]*fq.Queue, 0, len(fq.Priorities))
+	// queues := make([]*fq.Queue, 0, len(Priorities))
 	queues := []*fq.Queue{}
-	for i, priority := range fq.Priorities {
+	for i, priority := range Priorities {
 		queues = append(queues, &fq.Queue{
 			Packets:     []*fq.Packet{},
 			Priority:    priority,
@@ -80,10 +80,12 @@ func TestInflight(t *testing.T) {
 // test ideas
 // 3 flows
 // 1 concurrency for each (SCL = 3?)
-// make requests take 2 second
-// send like 10 requests to each
-// stop collection after  3 seconds
-// verify that one in each level was consumed
+// ACV = 1
+// make requests take 1 second
+// send like 10 requests to each, with 10 concurrent channels
+// stop collection after  2 seconds
+// verify that only one request in each level was consumed, showing adherence
+// to SCL/ACV and fairness
 
 func Test2Inflight(t *testing.T) {
 	var count0 int64
@@ -126,8 +128,8 @@ func Test2Inflight(t *testing.T) {
 
 		ws = append(ws, &Work{
 			Request: req,
-			N:       5,
-			C:       5,
+			N:       10,
+			C:       10,
 		})
 
 	}
@@ -139,13 +141,13 @@ func Test2Inflight(t *testing.T) {
 
 	time.Sleep(2 * time.Second)
 	if count0 != 1 {
-		t.Errorf("Expected to send 1 request, found %v", count0)
+		t.Errorf("Expected to dispatch 1 request for Priority 1, found %v", count0)
 	}
 	if count1 != 1 {
-		t.Errorf("Expected to send 1 request, found %v", count0)
+		t.Errorf("Expected to dispatch 1 request for Priority 2, found %v", count1)
 	}
 	if count2 != 1 {
-		t.Errorf("Expected to send 1 request, found %v", count0)
+		t.Errorf("Expected to dispatch 1 request for Priority 3, found %v", count2)
 	}
 
 }

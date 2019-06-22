@@ -17,7 +17,7 @@ type Dispatcher struct {
 
 func (d *Dispatcher) GetRequestsExecuting() int {
 	total := 0
-	for _, queue := range d.fqScheduler.fq.Queues {
+	for _, queue := range d.fqScheduler.Queues {
 		total += queue.RequestsExecuting
 	}
 	return total
