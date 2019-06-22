@@ -1,7 +1,6 @@
 package inflight
 
 import (
-	"fmt"
 	"sync"
 )
 
@@ -42,9 +41,9 @@ func (d *Dispatcher) Run() {
 				distributionCh, packet := d.fqScheduler.Dequeue()
 				// distributionCh is non nil if priority level has a non-empty queue
 				if distributionCh != nil {
-					fmt.Printf("d.requestsexecuting: %d, d.ACV: %d\n", d.GetRequestsExecuting(), d.ACV)
+					// fmt.Printf("d.requestsexecuting: %d, d.ACV: %d\n", d.GetRequestsExecuting(), d.ACV)
 					go func() {
-						fmt.Println("distributed.")
+						// fmt.Println("distributed.")
 						distributionCh <- func() {
 							// these are called after request is delegated
 							d.fqScheduler.FinishPacket(packet)

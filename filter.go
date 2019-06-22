@@ -1,7 +1,6 @@
 package inflight
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"sync"
@@ -22,7 +21,7 @@ type FQFilter struct {
 func (f *FQFilter) Serve(resp http.ResponseWriter, req *http.Request) {
 
 	matchedQueue := f.Matcher(req, f.queues)
-	fmt.Printf("matchedQueue: %d\n", matchedQueue.Index)
+	// fmt.Printf("matchedQueue: %d\n", matchedQueue.Index)
 
 	dispatcher := f.sharedDispatcher.producers[matchedQueue.Priority]
 	func() {
@@ -30,10 +29,10 @@ func (f *FQFilter) Serve(resp http.ResponseWriter, req *http.Request) {
 		defer dispatcher.lock.Unlock()
 		// dispatcher.queues[0].Priority
 
-		fmt.Printf("dispatcher.requestsexecuting: %d\n", dispatcher.requestsexecuting)
+		// fmt.Printf("dispatcher.requestsexecuting: %d\n", dispatcher.requestsexecuting)
 		if dispatcher.GetRequestsExecuting() > dispatcher.ACV {
 			// too many requests
-			fmt.Println("throttled...")
+			// fmt.Println("throttled...")
 			resp.WriteHeader(http.StatusConflict)
 			return
 		}
@@ -42,7 +41,7 @@ func (f *FQFilter) Serve(resp http.ResponseWriter, req *http.Request) {
 	distributionCh := dispatcher.fqScheduler.Enqueue(matchedQueue)
 	if distributionCh == nil {
 		// queues are full
-		fmt.Println("throttled...")
+		// fmt.Println("throttled...")
 		resp.WriteHeader(http.StatusConflict)
 		return
 	}
@@ -51,7 +50,6 @@ func (f *FQFilter) Serve(resp http.ResponseWriter, req *http.Request) {
 		func() {
 			dispatcher.lock.Lock()
 			defer dispatcher.lock.Unlock()
-			// TODO(aaron-prindle) incorrect, always 0
 			dispatcher.requestsexecuting++
 		}()
 		defer finishFunc()

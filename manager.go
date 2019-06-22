@@ -1,8 +1,6 @@
 package inflight
 
 import (
-	"fmt"
-
 	fq "github.com/aaron-prindle/fq-apiserver"
 	"k8s.io/apimachinery/pkg/util/clock"
 )
@@ -47,9 +45,9 @@ func newSharedDispatcher(queues []*Queue) *sharedDispatcher {
 }
 
 func (m *sharedDispatcher) Run() {
-	for i, producer := range m.producers {
+	for _, producer := range m.producers {
 		producer := producer
-		fmt.Printf("producer[%d] starting...\n", i)
+		// fmt.Printf("producer[%d] starting...\n", i)
 		go producer.Run()
 	}
 }

@@ -1,8 +1,6 @@
 package inflight
 
 import (
-	"fmt"
-
 	fq "github.com/aaron-prindle/fq-apiserver"
 	"k8s.io/apimachinery/pkg/util/clock"
 )
@@ -54,8 +52,8 @@ func (q *FQScheduler) Dequeue() (chan func(), fq.FQPacket) {
 	}
 	// dequeue
 	id := pkt.GetQueueIdx()
-	fmt.Printf("pkt: %v\n", pkt)
-	fmt.Printf("len(q.queuedistchs): %d\n", len(q.queuedistchs))
+	// fmt.Printf("pkt: %v\n", pkt)
+	// fmt.Printf("len(q.queuedistchs): %d\n", len(q.queuedistchs))
 	distributionCh := q.queuedistchs[id][0].(chan func())
 	q.queuedistchs[id] = q.queuedistchs[id][1:]
 	return distributionCh, pkt
