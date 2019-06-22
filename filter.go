@@ -6,16 +6,18 @@ import (
 	"strconv"
 	"sync"
 	"time"
+
+	fq "github.com/aaron-prindle/fq-apiserver"
 )
 
 type FQFilter struct {
 	// list-watching API models
 	lock   *sync.Mutex
-	queues []*Queue
+	queues []*fq.Queue
 
 	*sharedDispatcher
 
-	Matcher  func(*http.Request, []*Queue) *Queue
+	Matcher  func(*http.Request, []*fq.Queue) *fq.Queue
 	Delegate http.HandlerFunc
 }
 
@@ -38,6 +40,7 @@ func (f *FQFilter) Serve(resp http.ResponseWriter, req *http.Request) {
 			return
 		}
 	}()
+	// TODO(aaron-prindle) currently the line below is a bit hacky..
 	distributionCh := dispatcher.fqScheduler.Enqueue(matchedQueue)
 	if distributionCh == nil {
 		// queues are full
@@ -62,7 +65,7 @@ func (f *FQFilter) Serve(resp http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func NewFQFilter(queues []*Queue) *FQFilter {
+func NewFQFilter(queues []*fq.Queue) *FQFilter {
 	// Initializing everything
 	inflightFilter := &FQFilter{
 		queues:           queues,
@@ -81,7 +84,7 @@ func (f *FQFilter) Run() {
 	go f.sharedDispatcher.Run()
 }
 
-func findMatchedQueue(req *http.Request, queues []*Queue) *Queue {
+func findMatchedQueue(req *http.Request, queues []*fq.Queue) *fq.Queue {
 	priority := req.Header.Get("PRIORITY")
 	idx, err := strconv.Atoi(priority)
 	if err != nil {

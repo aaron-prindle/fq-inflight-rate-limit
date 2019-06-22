@@ -9,16 +9,18 @@ import (
 	"time"
 
 	"fmt"
+
+	fq "github.com/aaron-prindle/fq-apiserver"
 )
 
 // InitQueuesPriority is a convenience method for initializing an array of n queues
 // for the full list of priorities
-func InitQueuesPriority() []*Queue {
-	// queues := make([]*Queue, 0, len(Priorities))
-	queues := []*Queue{}
-	for i, priority := range Priorities {
-		queues = append(queues, &Queue{
-			Packets:     []*Packet{},
+func InitQueuesPriority() []*fq.Queue {
+	// queues := make([]*fq.Queue, 0, len(fq.Priorities))
+	queues := []*fq.Queue{}
+	for i, priority := range fq.Priorities {
+		queues = append(queues, &fq.Queue{
+			Packets:     []*fq.Packet{},
 			Priority:    priority,
 			SharedQuota: 10,
 			Index:       i,

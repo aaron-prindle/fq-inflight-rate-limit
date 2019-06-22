@@ -3,11 +3,13 @@ package inflight
 import (
 	"fmt"
 	"sync"
+
+	fq "github.com/aaron-prindle/fq-apiserver"
 )
 
 type Dispatcher struct {
 	lock              sync.Mutex
-	queues            []*Queue
+	queues            []*fq.Queue
 	requestsexecuting int
 	fqScheduler       *FQScheduler
 	ACV               int
@@ -15,7 +17,7 @@ type Dispatcher struct {
 
 func (d *Dispatcher) GetRequestsExecuting() int {
 	total := 0
-	for _, queue := range d.fqScheduler.queues {
+	for _, queue := range d.fqScheduler.fq.Queues {
 		total += queue.RequestsExecuting
 	}
 	return total
@@ -42,13 +44,12 @@ func (d *Dispatcher) Run() {
 				distributionCh, packet := d.fqScheduler.Dequeue()
 				// distributionCh is non nil if priority level has a non-empty queue
 				if distributionCh != nil {
-					fmt.Printf("d.requestsexecuting: %d, d.ACV: %d\n", d.requestsexecuting, d.ACV)
+					fmt.Printf("d.requestsexecuting: %d, d.ACV: %d\n", d.GetRequestsExecuting(), d.ACV)
 					go func() {
 						fmt.Println("distributed.")
 						distributionCh <- func() {
 							// these are called after request is delegated
 							d.fqScheduler.FinishPacket(packet)
-							// d.requestsexecuting--
 						}
 					}()
 				}
