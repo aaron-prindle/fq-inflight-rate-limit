@@ -33,9 +33,7 @@ func (q *FQScheduler) chooseQueue(packet *Packet) *Queue {
 	// }
 	fmt.Printf("packet.queueidx: %d\n", packet.queueidx)
 	fmt.Printf("len(q.queues): %d\n", len(q.queues))
-	// TODO(aaron-prindle) MAJOR HACK, fix
-	return q.queues[0]
-	// return q.queues[packet.queueidx]
+	return q.queues[packet.queueidx]
 }
 
 func NewFQScheduler(queues []*Queue, clock clock.Clock) *FQScheduler {
@@ -55,7 +53,9 @@ func (q *FQScheduler) nowAsUnixNano() float64 {
 func (q *FQScheduler) Enqueue(queue *Queue) <-chan func() {
 	distributionCh := make(chan func(), 1)
 	pkt := &Packet{
-		queueidx: queue.Index,
+		// TODO(aaron-prindle) MAJOR HACK, fix
+		queueidx: 0,
+		// queueidx: queue.Index,
 	}
 	// TODO(aaron-prindle) make it so enqueue fails if the queues are full
 	q.enqueue(pkt, distributionCh)
@@ -123,12 +123,12 @@ func (q *FQScheduler) FinishPacket(p *Packet) {
 
 	// When a request finishes being served, and the actual service time was S,
 	// the queue’s virtual start time is decremented by G - S.
-	q.queues[0].virstart -= G - float64(S)
-	// q.queues[p.queueidx].virstart -= G - float64(S)
+	// q.queues[0].virstart -= G - float64(S)
+	q.queues[p.queueidx].virstart -= G - float64(S)
 
 	// request has finished, remove from requests executing
-	q.queues[0].RequestsExecuting--
-	// q.queues[p.queueidx].RequestsExecuting--
+	// q.queues[0].RequestsExecuting--
+	q.queues[p.queueidx].RequestsExecuting--
 }
 
 // Dequeue dequeues a packet from the fair queuing scheduler
@@ -139,7 +139,6 @@ func (q *FQScheduler) Dequeue() (distributionCh chan<- func(), packet *Packet) {
 
 	if queue == nil {
 		return nil, nil
-		// return nil, false
 	}
 	packet, ok := queue.Dequeue()
 

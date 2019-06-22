@@ -13,6 +13,14 @@ type Dispatcher struct {
 	ACV               int
 }
 
+func (d *Dispatcher) GetRequestsExecuting() int {
+	total := 0
+	for _, queue := range d.fqScheduler.queues {
+		total += queue.RequestsExecuting
+	}
+	return total
+}
+
 func (d *Dispatcher) Run() {
 	// Dispatching is done independently for each priority level. Whenever (1)
 	// a non-exempt priority level's number of running requests is below the
@@ -28,7 +36,8 @@ func (d *Dispatcher) Run() {
 			defer d.lock.Unlock()
 			// Whenever (1) a non-exempt priority level's number of running
 			// requests is below the level's assured concurrency value
-			if d.requestsexecuting < d.ACV {
+			if d.GetRequestsExecuting() < d.ACV {
+				// if d.requestsexecuting < d.ACV {
 				// and (2) that priority level has a non-empty queue
 				distributionCh, packet := d.fqScheduler.Dequeue()
 				// distributionCh is non nil if priority level has a non-empty queue
@@ -39,7 +48,7 @@ func (d *Dispatcher) Run() {
 						distributionCh <- func() {
 							// these are called after request is delegated
 							d.fqScheduler.FinishPacket(packet)
-							d.requestsexecuting--
+							// d.requestsexecuting--
 						}
 					}()
 				}

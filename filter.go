@@ -31,7 +31,7 @@ func (f *FQFilter) Serve(resp http.ResponseWriter, req *http.Request) {
 		// dispatcher.queues[0].Priority
 
 		fmt.Printf("dispatcher.requestsexecuting: %d\n", dispatcher.requestsexecuting)
-		if dispatcher.requestsexecuting > dispatcher.ACV {
+		if dispatcher.GetRequestsExecuting() > dispatcher.ACV {
 			// too many requests
 			fmt.Println("throttled...")
 			resp.WriteHeader(http.StatusConflict)

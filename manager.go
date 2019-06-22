@@ -24,14 +24,16 @@ func newSharedDispatcher(queues []*Queue) *sharedDispatcher {
 	clock := clock.RealClock{}
 	for _, priority := range Priorities {
 		mgr.producers[priority] = &Dispatcher{
-			queues:      queues,
-			ACV:         ACV(priority, queues),
+			queues: queues,
+			ACV:    1,
+			// ACV:         ACV(priority, queues),
 			fqScheduler: NewFQScheduler(queuesForPriority(priority, queues), clock),
 		}
 	}
 	// TODO(aaron-prindle) FIX - this eventually needs to be dynamic...
 	for _, priority := range Priorities {
-		mgr.producers[priority].ACV += ACV(priority, mgr.producers[priority].queues)
+		mgr.producers[priority].ACV = 1
+		// mgr.producers[priority].ACV += ACV(priority, mgr.producers[priority].queues)
 	}
 
 	return mgr

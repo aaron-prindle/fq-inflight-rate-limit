@@ -92,6 +92,7 @@ func Test2Inflight(t *testing.T) {
 	fqFilter := NewFQFilter(queues)
 	fqFilter.Delegate = func(w http.ResponseWriter, r *http.Request) {
 		// fmt.Printf("r.Header[\"PRIORITY\"]: %s\n", r.Header["PRIORITY"])
+		time.Sleep(1 * time.Second)
 		if r.Header.Get("PRIORITY") == "0" {
 			atomic.AddInt64(&count0, int64(1))
 		}
@@ -101,8 +102,6 @@ func Test2Inflight(t *testing.T) {
 		if r.Header.Get("PRIORITY") == "2" {
 			atomic.AddInt64(&count2, int64(1))
 		}
-
-		time.Sleep(2 * time.Second)
 	}
 	fqFilter.Run()
 
@@ -126,7 +125,7 @@ func Test2Inflight(t *testing.T) {
 		ws = append(ws, &Work{
 			Request: req,
 			N:       5,
-			C:       1,
+			C:       5,
 		})
 
 	}
@@ -135,118 +134,16 @@ func Test2Inflight(t *testing.T) {
 		fmt.Printf("w %d info: %s\n", i, w.Request.Header.Get("PRIORITY"))
 		go func() { w.Run() }()
 	}
-	// i := 0
-	// for _, w := range ws {
-	// 	for result := range w.results {
-	// 		fmt.Printf("result %d:\n%v\n", i, result)
-	// 		i++
-	// 	}
-	// }
-	time.Sleep(10 * time.Second)
+
+	time.Sleep(2 * time.Second)
 	if count0 != 1 {
 		t.Errorf("Expected to send 1 request, found %v", count0)
 	}
+	if count1 != 1 {
+		t.Errorf("Expected to send 1 request, found %v", count0)
+	}
+	if count2 != 1 {
+		t.Errorf("Expected to send 1 request, found %v", count0)
+	}
+
 }
-
-// type flowDesc struct {
-// 	// In
-// 	ftotal int // Total units in flow
-// 	imin   int // Min Packet size
-// 	imax   int // Max Packet size
-
-// 	// Out
-// 	idealPercent  float64
-// 	actualPercent float64
-// }
-
-// func genFlow(fq *FQScheduler, desc *flowDesc, key int) {
-// 	for i, t := int(1), int(0); t < desc.ftotal; i++ {
-// 		// req, err := http.NewRequest("GET", "localhost:8080", nil)
-// 		// if err != nil {
-// 		// 	panic("nooo")
-// 		// }
-// 		// req.Header.Set("PRIORITY", strconv.Itoa(key))
-// 		// client := http.Client{}
-// 		// resp, err := client.Do(req)
-// 		// if err != nil {
-// 		// 	panic("nooo")
-// 		// }
-// 		it := new(Packet)
-// 		it.queueidx = key
-// 		if desc.imin == desc.imax {
-// 			it.size = desc.imax
-// 		} else {
-// 			it.size = desc.imin + rand.Intn(desc.imax-desc.imin)
-// 		}
-// 		if t+it.size > desc.ftotal {
-// 			it.size = desc.ftotal - t
-// 		}
-// 		t += it.size
-// 		it.seq = i
-// 		// new packet
-// 		fq.Enqueue(it)
-// 	}
-// }
-
-// func consumeQueue(t *testing.T, fq *FQScheduler, descs []flowDesc) (float64, error) {
-// 	active := make(map[int]bool)
-// 	var total int
-// 	acnt := make(map[int]int)
-// 	cnt := make(map[int]int)
-// 	seqs := make(map[int]int)
-
-// 	wsum := uint64(len(descs))
-
-// 	for i, ok := fq.Dequeue(); ok; i, ok = fq.Dequeue() {
-// 		// callback to update virtualtime w/ correct service time for request
-// 		fq.FinishPacket(i)
-
-// 		it := i
-// 		seq := seqs[it.queueidx]
-// 		if seq+1 != it.seq {
-// 			return 0, fmt.Errorf("Packet for flow %d came out of queue out-of-order: expected %d, got %d", it.queueidx, seq+1, it.seq)
-// 		}
-// 		seqs[it.queueidx] = it.seq
-
-// 		// set the flow this item is a part of to active
-// 		if cnt[it.queueidx] == 0 {
-// 			active[it.queueidx] = true
-// 		}
-// 		cnt[it.queueidx] += it.size
-
-// 		// if # of active flows is equal to the # of total flows, add to total
-// 		if len(active) == len(descs) {
-// 			acnt[it.queueidx] += it.size
-// 			total += it.size
-// 		}
-
-// 		// if all items have been processed from the flow, remove it from active
-// 		if cnt[it.queueidx] == descs[it.queueidx].ftotal {
-// 			delete(active, it.queueidx)
-// 		}
-// 	}
-
-// 	if total == 0 {
-// 		t.Fatalf("expected 'total' to be nonzero")
-// 	}
-
-// 	var variance float64
-// 	for key := 0; key < len(descs); key++ {
-// 		// flows in this test have same expected # of requests
-// 		// idealPercent = total-all-active/len(flows) / total-all-active
-// 		// "how many bytes/requests you expect for this flow - all-active"
-// 		descs[key].idealPercent = float64(100) / float64(wsum)
-
-// 		// actualPercent = requests-for-this-flow-all-active / total-reqs
-// 		// "how many bytes/requests you got for this flow - all-active"
-// 		descs[key].actualPercent = (float64(acnt[key]) / float64(total)) * 100
-
-// 		x := descs[key].idealPercent - descs[key].actualPercent
-// 		x *= x
-// 		variance += x
-// 	}
-// 	variance /= float64(len(descs))
-
-// 	stdDev := math.Sqrt(variance)
-// 	return stdDev, nil
-// }
